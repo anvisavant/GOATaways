@@ -67,16 +67,6 @@ def health():
     return jsonify({"status": "ok"})
 
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve(path):
-    if path.startswith('api/'):
-        return {'error': 'Not found'}, 404
-    static = app.static_folder
-    if path and os.path.exists(os.path.join(static, path)):
-        return send_from_directory(static, path)
-    return send_from_directory(static, 'index.html')
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
 
