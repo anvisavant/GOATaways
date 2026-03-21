@@ -7,7 +7,7 @@ import numpy as np
 import os
 from flask import send_from_directory
 
-app = Flask(__name__, static_folder='../../frontend/dist', static_url_path='/')
+app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
 CORS(app)
 
 # Load once at startup for nearest-city lookup
