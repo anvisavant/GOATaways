@@ -55,7 +55,6 @@ def search():
 def health():
     return jsonify({"status": "ok"})
 
-# ⬇️ catch-all — MUST be last
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
