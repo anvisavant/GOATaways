@@ -4,8 +4,10 @@ from geopy.distance import geodesic
 from ranker import rank_destinations, df as _df
 from data_loader import load_cities 
 import numpy as np
+import os
+from flask import send_from_directory
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../../frontend/dist', static_url_path='/')
 CORS(app)
 
 # Load once at startup for nearest-city lookup
@@ -64,6 +66,16 @@ def search():
 def health():
     return jsonify({"status": "ok"})
 
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path.startswith('api/'):
+        return {'error': 'Not found'}, 404
+    static = app.static_folder
+    if path and os.path.exists(os.path.join(static, path)):
+        return send_from_directory(static, path)
+    return send_from_directory(static, 'index.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
