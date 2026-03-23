@@ -285,3 +285,63 @@ body, .app {
   .coords-row { flex-wrap: wrap; }
   .locate-btn { width: 100%; text-align: center; margin-top: 8px; }
 }
+
+/* ── Card header layout ─────────────────────────────────────────────────── */
+.card-header {
+  display: flex;
+  gap: 16px;
+}
+
+/* ── Score value label next to bar ─────────────────────────────────────── */
+.score-value {
+  font-size: 0.75rem;
+  color: #75704E;
+  font-weight: 700;
+  width: 32px;
+  text-align: right;
+}
+
+/* ── Trip length tag ────────────────────────────────────────────────────── */
+.trip-tag {
+  background: #A7CECB;
+  color: #000000;
+  border: 1px solid #8BA6A9;
+}
+
+/* ── Review excerpts section ────────────────────────────────────────────── */
+.review-excerpts {
+  margin-top: 16px;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 12px;
+}
+
+.review-toggle {
+  background: none;
+  border: none;
+  color: #75704E;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.review-toggle:hover { color: #8BA6A9; }
+
+.review-quotes {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.review-quote {
+  background: #F4EBBE;
+  border-left: 4px solid #75704E;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  color: #333333;
+  line-height: 1.6;
+  font-style: italic;
+}

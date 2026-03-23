@@ -19,6 +19,7 @@ numpy
 pandas
 python-dateutil==2.9.0.post0
 scikit-learn
+sklearn
 scipy
 six
 threadpoolctl
