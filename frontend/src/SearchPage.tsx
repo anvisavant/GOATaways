@@ -4,13 +4,9 @@ import { Destination, SearchResponse } from './types'
 interface Props { onBack: () => void }
 
 const SCORE_LABELS: Record<string, string> = {
-  review_score:        '📄 Reviews',
-  text_score:          '🔤 Text',
-  climate_score:       '🌡 Climate',
-  relative_temp_score: '🌡 Rel. Temp',
-  activity_score:      '🎯 Activity',
-  budget_score:        '💰 Budget',
-  distance_score:      '📍 Distance',
+  review_score: '📄 Reviews Match',
+  climate_score: '🌡 Climate Match',
+  distance_score: '📍 Distance Match',
 }
 
 const TRIP_LABELS: Record<string, string> = {

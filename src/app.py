@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from geopy.distance import geodesic
-from ranker import rank_destinations, df as _df
+from ranker import rank_destinations
 from data_loader import load_cities
 import numpy as np
 import os
