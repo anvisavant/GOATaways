@@ -345,3 +345,41 @@ body, .app {
   line-height: 1.6;
   font-style: italic;
 }
+.globe-pin {
+  width: 18px;
+  height: 18px;
+  background: #d62828;
+  border: 2px solid #ffffff;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.globe-pin:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.42);
+}
+
+.globe-pin-inner {
+  transform: rotate(45deg);
+  color: #000;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.globe-wrap canvas {
+  border-radius: 18px;
+}
+
+.globe-card :global(.scene-tooltip),
+.globe-card .scene-tooltip {
+  background: #fffdf4 !important;
+  color: #000 !important;
+  border-radius: 10px !important;
+  padding: 8px 10px !important;
+  border: 1px solid rgba(117,112,78,0.35) !important;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.16) !important;
+}

@@ -8,11 +8,6 @@ interface Props {
 }
 
 const SCORE_LABELS: Record<string, string> = {
-<<<<<<< Updated upstream
-  review_score: '📄 Reviews Match',
-  climate_score: '🌡 Climate Match',
-  distance_score: '📍 Distance Match',
-=======
   review_score: '📄 Reviews',
   text_score: '🔤 Text',
   climate_score: '🌡 Climate',
@@ -21,7 +16,6 @@ const SCORE_LABELS: Record<string, string> = {
   activity_score: '🎯 Activity',
   budget_score: '💰 Budget',
   distance_score: '📍 Distance',
->>>>>>> Stashed changes
 }
 
 const TRIP_LABELS: Record<string, string> = {
@@ -153,8 +147,52 @@ function SearchPage({ onBack }: Props): JSX.Element {
       ),
     [results]
   )
-  
+  const globeLabels = useMemo(
+  () =>
+    mappableResults.map((dest) => ({
+      lat: dest.latitude!,
+      lng: dest.longitude!,
+      name: dest.city,
+      country: dest.country,
+      rank: dest.rank,
+      score: dest.score,
+    })),
+  [mappableResults]
+)
 
+const globePins = useMemo(
+  () =>
+    mappableResults.map((dest) => ({
+      ...dest,
+      lat: dest.latitude!,
+      lng: dest.longitude!,
+      markerRadius:
+        dest.rank === 1 ? 0.52 :
+        (dest.rank ?? 99) <= 3 ? 0.4 :
+        (dest.rank ?? 99) <= 5 ? 0.3 : 0.22,
+      markerColor:
+        dest.rank === 1 ? '#ff3b30' :
+        (dest.rank ?? 99) <= 3 ? '#e63946' :
+        '#d62828',
+    })),
+  [mappableResults]
+)
+const globeRings = useMemo(
+  () =>
+    mappableResults
+      .filter((dest) => (dest.rank ?? 99) <= 3)
+      .map((dest) => ({
+        lat: dest.latitude!,
+        lng: dest.longitude!,
+        maxR: dest.rank === 1 ? 3.8 : 2.8,
+        propagationSpeed: 1.6,
+        repeatPeriod: dest.rank === 1 ? 900 : 1200,
+        color: dest.rank === 1
+          ? 'rgba(244,235,190,0.85)'
+          : 'rgba(255,255,255,0.55)',
+      })),
+  [mappableResults]
+)
   useEffect(() => {
     if (!globeRef.current || mappableResults.length === 0) return
     const top = mappableResults[0]
@@ -250,8 +288,6 @@ function SearchPage({ onBack }: Props): JSX.Element {
                   <p>Drag to rotate, scroll to zoom, hover for a preview, click for full details.</p>
                 </div>
                 <div className="globe-legend">
-                  <span><strong>#1</strong> is centered first</span>
-                  <span>Top results use larger markers</span>
                   <span>Click a marker to read more</span>
                 </div>
               </div>
@@ -261,43 +297,57 @@ function SearchPage({ onBack }: Props): JSX.Element {
                   ref={globeRef}
                   width={900}
                   height={520}
-                  backgroundColor="rgba(0,0,0,0)"
-                  showAtmosphere
-                  atmosphereColor="#A7CECB"
-                  atmosphereAltitude={0.18}
-                  showGraticules
+                  backgroundColor="rgba(0,0,0,1)"
                   globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
                   bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
-                  pointsData={mappableResults}
-                  pointLat="latitude"
-                  pointLng="longitude"
-                  pointAltitude={(d: object) => {
-                    const point = d as Destination
-                    if (point.rank === 1) return 0.24
-                    if ((point.rank ?? 99) <= 3) return 0.18
-                    return 0.1
+                  showAtmosphere
+                  atmosphereColor="#7fc8ff"
+                  atmosphereAltitude={0.12}
+                  showGraticules={false}
+
+                  labelsData={globeLabels}
+                  labelLat="lat"
+                  labelLng="lng"
+                  labelText="name"
+                  labelSize={(d: object) => {
+                    const label = d as { rank?: number }
+                    return label.rank === 1 ? 1.35 : (label.rank ?? 99) <= 3 ? 1.05 : 0.78
                   }}
-                  pointRadius={(d: object) => {
-                    const point = d as Destination
-                    return Math.max(0.16, 0.42 - ((point.rank ?? 10) - 1) * 0.025)
+                  labelAltitude={0.028}
+                  labelDotRadius={0}
+                  labelColor={(d: object) => {
+                    const label = d as { rank?: number }
+                    return label.rank === 1 ? '#F4EBBE' : '#FFFFFF'
                   }}
-                  pointColor={(d: object) => {
-                    const point = d as Destination
-                    if (point.rank === 1) return '#F4EBBE'
-                    if ((point.rank ?? 99) <= 3) return '#75704E'
-                    return '#8BA6A9'
-                  }}
+                  labelsTransitionDuration={0}
+
+                  pointsData={globePins}
+                  pointLat="lat"
+                  pointLng="lng"
+                  pointAltitude={0.028}
+                  pointRadius="markerRadius"
+                  pointColor="markerColor"
+                  pointsMerge={false}
+                  pointsTransitionDuration={0}
                   pointLabel={(d: object) => {
-                    const point = d as Destination
+                    const pin = d as Destination
                     return `
-                      <div style="padding:8px 10px;border-radius:10px;background:#fff;color:#000;box-shadow:0 6px 20px rgba(0,0,0,0.15);">
-                        <div style="font-weight:800;">#${point.rank} ${point.city}</div>
-                        <div>${point.country}</div>
-                        <div>⭐ ${(point.score * 100).toFixed(0)}% match</div>
+                      <div style="padding:8px 10px;border-radius:10px;background:#fff;color:#000;box-shadow:0 6px 20px rgba(0,0,0,0.18);">
+                        <div style="font-weight:800;">#${pin.rank} ${pin.city}</div>
+                        <div>${pin.country}</div>
+                        <div>⭐ ${(pin.score * 100).toFixed(0)}% match</div>
                       </div>
                     `
                   }}
                   onPointClick={(point) => setSelectedResult(point as Destination)}
+
+                  ringsData={globeRings}
+                  ringLat="lat"
+                  ringLng="lng"
+                  ringColor="color"
+                  ringMaxRadius="maxR"
+                  ringPropagationSpeed="propagationSpeed"
+                  ringRepeatPeriod="repeatPeriod"
                 />
               </div>
             </div>
