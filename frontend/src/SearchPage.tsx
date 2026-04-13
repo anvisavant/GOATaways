@@ -16,6 +16,7 @@ const SCORE_LABELS: Record<string, string> = {
   activity_score: '🎯 Activity',
   budget_score: '💰 Budget',
   distance_score: '📍 Distance',
+  svd_score: '🧠 SVD'
 }
 
 const TRIP_LABELS: Record<string, string> = {

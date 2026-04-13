@@ -7,21 +7,22 @@ MONTH_ALIASES = {
     "oct":"october","nov":"november","dec":"december"
 }
 
+WEATHER_SHIFTS = {
+    "freezing": -18,
+    "very cold": -12,
+    "cold": -8,
+    "cool": -4,
+    "mild": 0,
+    "warm": 5,
+    "hot": 10,
+    "very hot": 14,
+    "tropical": 12,
+    "island": 12,
+    "beach vacation": 12
+}
+
 TRIP_LENGTH_LONG = ["spring break", "two weeks", "2 weeks", "week long", "10 days", "month"]
 TRIP_LENGTH_SHORT = ["weekend", "long weekend", "day trip", "2 days", "3 days", "48 hours"]
-
-CLIMATE_INTENTS = {
-    "tropical": "tropical",
-    "island": "tropical",
-    "beach vacation": "tropical",
-    "beach holiday": "tropical",
-    "warm": "warm",
-    "hot": "hot",
-    "cold": "cold",
-    "cool": "cool",
-    "mild": "mild",
-    "freezing": "freezing"
-}
 
 def parse_query(query):
     q = query.lower()
@@ -30,10 +31,10 @@ def parse_query(query):
 
     month = next((m for m in MONTHS if m in q), None)
 
-    climate_intent = None
-    for phrase, label in sorted(CLIMATE_INTENTS.items(), key=lambda x: -len(x[0])):
-        if phrase in q:
-            climate_intent = label
+    weather_shift = None
+    for term, shift in sorted(WEATHER_SHIFTS.items(), key=lambda x: -len(x[0])):
+        if term in q:
+            weather_shift = shift
             break
 
     trip_length = "medium"
@@ -44,7 +45,7 @@ def parse_query(query):
 
     return {
         "month": month,
-        "climate_intent": climate_intent,
+        "weather_shift": weather_shift,
         "trip_length": trip_length,
         "raw": query
     }
