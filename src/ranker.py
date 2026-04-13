@@ -9,6 +9,13 @@ from reviews_indexer import (
 )
 
 df = load_cities()
+def get_distance_km(row, user_lat, user_lon):
+    if user_lat is None or user_lon is None:
+        return None
+    try:
+        return geodesic((user_lat, user_lon), (row["latitude"], row["longitude"])).km
+    except Exception:
+        return None
 
 def get_relative_climate_score(row, parsed, user_baseline_temp):
     temp_col = f"temp_{parsed['month']}" if parsed.get("month") else "annual_avg_c"
@@ -95,6 +102,10 @@ def rank_destinations(query, user_lat=None, user_lon=None, user_baseline_temp=No
     results = []
     for _, row in df.iterrows():
         city_id = row["id"]
+        dist_km = get_distance_km(row, user_lat, user_lon)
+
+        if parsed["trip_length"] == "short" and dist_km is not None and dist_km > 2000:
+            continue
 
         review_pack = review_scores.get(city_id, {"tfidf_score": 0.0, "svd_score": 0.0, "hybrid_score": 0.0})
         norm_review = review_pack["hybrid_score"] / max_hybrid
