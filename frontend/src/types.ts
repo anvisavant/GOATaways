@@ -2,7 +2,8 @@ export interface ScoreBreakdown {
   review_score: number
   text_score: number
   climate_score: number
-  relative_temp_score: number
+  relative_temp_score?: number
+  relative_temp?: number
   activity_score: number
   budget_score: number
   distance_score: number
@@ -20,6 +21,9 @@ export interface Destination {
   scores: ScoreBreakdown
   matching_reviews?: string[]
   trip_length_inferred?: string
+  latitude?: number
+  longitude?: number
+  rank?: number
 }
 
 export interface SearchResponse {

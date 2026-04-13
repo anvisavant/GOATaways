@@ -12,5 +12,13 @@
     "flask",
     "react",
     "template"
-  ]
+  ],
+  "dependencies": {
+    "react-globe.gl": "^2.37.1",
+    "three": "^0.183.2"
+  },
+  "devDependencies": {
+    "@types/papaparse": "^5.5.2",
+    "@types/three": "^0.183.1"
+  }
 }
