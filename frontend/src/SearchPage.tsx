@@ -49,6 +49,7 @@ function SearchPage({ onBack }: Props): JSX.Element {
       download: true,
       header: true,
       skipEmptyLines: true,
+      encoding: 'utf-8',
       complete: (results) => {
         const map: CoordinateMap = {}
 
@@ -245,7 +246,7 @@ const globeRings = useMemo(
         {nearestCity && (
           <div className="baseline-note">
             📍 Your nearest city: <strong>{nearestCity}</strong>
-            {baselineTemp !== null && <> · baseline {baselineTemp}°C</>}
+            {baselineTemp !== null && <> · baseline {Math.round((baselineTemp * 9) / 5 + 32)}°F</>}
           </div>
         )}
         {error && <div className="error-msg">{error}</div>}
