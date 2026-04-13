@@ -1,27 +1,41 @@
 MONTHS = ["january","february","march","april","may","june",
           "july","august","september","october","november","december"]
 
-WEATHER_INTENTS = {
-    "freezing": -15, "very cold": -10, "cold": -5, 
-    "cool": -2, "mild": 0, "warm": 5, "hot": 10, "very hot": 15
+MONTH_ALIASES = {
+    "jan":"january","feb":"february","mar":"march","apr":"april",
+    "jun":"june","jul":"july","aug":"august","sep":"september",
+    "oct":"october","nov":"november","dec":"december"
 }
 
-TRIP_LENGTH_LONG = ["spring break", "two weeks", "2 weeks", "week long", "10 days", "month", "long trip"]
-TRIP_LENGTH_SHORT = ["weekend", "long weekend", "day trip", "2 days", "3 days", "48 hours", "short trip"]
+TRIP_LENGTH_LONG = ["spring break", "two weeks", "2 weeks", "week long", "10 days", "month"]
+TRIP_LENGTH_SHORT = ["weekend", "long weekend", "day trip", "2 days", "3 days", "48 hours"]
+
+CLIMATE_INTENTS = {
+    "tropical": "tropical",
+    "island": "tropical",
+    "beach vacation": "tropical",
+    "beach holiday": "tropical",
+    "warm": "warm",
+    "hot": "hot",
+    "cold": "cold",
+    "cool": "cool",
+    "mild": "mild",
+    "freezing": "freezing"
+}
 
 def parse_query(query):
     q = query.lower()
-    
+    for alias, full in MONTH_ALIASES.items():
+        q = q.replace(alias, full)
+
     month = next((m for m in MONTHS if m in q), None)
-    
-    # Check if they want a temperature relative to their baseline
-    weather_shift = None
-    for w, shift in WEATHER_INTENTS.items():
-        if w in q:
-            weather_shift = shift
+
+    climate_intent = None
+    for phrase, label in sorted(CLIMATE_INTENTS.items(), key=lambda x: -len(x[0])):
+        if phrase in q:
+            climate_intent = label
             break
-            
-    # Infer trip length
+
     trip_length = "medium"
     if any(t in q for t in TRIP_LENGTH_SHORT):
         trip_length = "short"
@@ -30,7 +44,7 @@ def parse_query(query):
 
     return {
         "month": month,
-        "weather_shift": weather_shift,
+        "climate_intent": climate_intent,
         "trip_length": trip_length,
         "raw": query
     }
