@@ -27,6 +27,52 @@ const TRIP_LABELS: Record<string, string> = {
 
 type CoordinateMap = Record<string, { latitude: number; longitude: number }>
 
+// ── RAG PANEL COMPONENT ───────────────────────────────────────────────
+interface RagPanelProps {
+  loading: boolean
+  error: string
+  irQuery: string
+  summary: string
+}
+
+function RagPanel({ loading, error, irQuery, summary }: RagPanelProps) {
+  if (!loading && !irQuery && !summary && !error) return null
+
+  return (
+    <div className="rag-panel">
+      <div className="rag-panel__header">
+        <span className="rag-panel__badge">✦ AI Summary</span>
+        <span className="rag-panel__subtitle">
+          Powered by Spark LLM · Full IR results are shown below
+        </span>
+      </div>
+
+      {loading && (
+        <div className="rag-panel__loading">
+          <div className="rag-spinner" />
+          <span>Generating AI summary…</span>
+        </div>
+      )}
+
+      {error && !loading && (
+        <p className="rag-panel__error">{error}</p>
+      )}
+
+      {!loading && irQuery && (
+        <div className="rag-panel__ir-query">
+          <span className="rag-panel__label">LLM-generated IR query:</span>
+          <code className="rag-panel__code">{irQuery}</code>
+        </div>
+      )}
+
+      {!loading && summary && (
+        <p className="rag-panel__summary">{summary}</p>
+      )}
+    </div>
+  )
+}
+// ──────────────────────────────────────────────────────────────────────
+
 function SearchPage({ onBack }: Props): JSX.Element {
   const globeRef = useRef<any>(null)
 
@@ -44,6 +90,12 @@ function SearchPage({ onBack }: Props): JSX.Element {
   const [selectedResult, setSelectedResult] = useState<Destination | null>(null)
   const [coordinateMap, setCoordinateMap] = useState<CoordinateMap>({})
   const [csvReady, setCsvReady] = useState(false)
+  
+  // RAG States
+  const [irQuery, setIrQuery] = useState<string>('')
+  const [ragSummary, setRagSummary] = useState<string>('')
+  const [ragLoading, setRagLoading] = useState<boolean>(false)
+  const [ragError, setRagError] = useState<string>('')
 
   useEffect(() => {
     Papa.parse('/goataway_cleaned_dataset.csv', {
@@ -109,6 +161,44 @@ function SearchPage({ onBack }: Props): JSX.Element {
     })
   }
 
+  // Fetch AI Context (RAG)
+  const fetchRagContext = async (originalQuery: string, searchResults: any[]) => {
+    if (!originalQuery.trim() || searchResults.length === 0) return
+
+    setRagLoading(true)
+    setRagError('')
+    setIrQuery('')
+    setRagSummary('')
+
+    try {
+      // Step 1: get the LLM-optimised IR query
+      const irRes = await fetch('/api/llm/ir-query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: originalQuery }),
+      })
+      if (irRes.ok) {
+        const irData = await irRes.json()
+        setIrQuery(irData.ir_query ?? '')
+      }
+
+      // Step 2: summarise the top-10 results
+      const sumRes = await fetch('/api/llm/summarise', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: originalQuery, cities: searchResults.slice(0, 10) }),
+      })
+      if (sumRes.ok) {
+        const sumData = await sumRes.json()
+        setRagSummary(sumData.summary ?? '')
+      }
+    } catch (err) {
+      setRagError('Could not load AI summary — IR results below are unaffected.')
+    } finally {
+      setRagLoading(false)
+    }
+  }
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!query.trim()) return
@@ -120,6 +210,11 @@ function SearchPage({ onBack }: Props): JSX.Element {
     setBaselineTemp(null)
     setExpandedIdx(null)
     setSelectedResult(null)
+
+    // Reset RAG states on new search
+    setIrQuery('')
+    setRagSummary('')
+    setRagError('')
 
     const params = new URLSearchParams({ q: query, top_n: '10' })
     if (lat) params.set('lat', lat)
@@ -135,6 +230,9 @@ function SearchPage({ onBack }: Props): JSX.Element {
 
       if (data.user_nearest_city) setNearestCity(data.user_nearest_city)
       if (data.user_baseline_temp_c != null) setBaselineTemp(data.user_baseline_temp_c)
+
+      // KICK OFF RAG FETCH IN THE BACKGROUND AFTER IR RESULTS SET
+      fetchRagContext(query, enrichedResults)
     } catch {
       setError('Could not reach the backend. Make sure Flask is running on port 5001.')
     } finally {
@@ -252,6 +350,14 @@ const globeRings = useMemo(
         )}
         {error && <div className="error-msg">{error}</div>}
       </form>
+
+      {/* RAG PANEL RENDERED HERE */}
+      <RagPanel
+        loading={ragLoading}
+        error={ragError}
+        irQuery={irQuery}
+        summary={ragSummary}
+      />
 
       {results.length > 0 && (
         <div className="results-shell">
@@ -502,7 +608,7 @@ const globeRings = useMemo(
               </div>
             )}
 
-                        {/* SVD MATCHES / HOW WE MATCHED YOU ADDED HERE */}
+            {/* SVD MATCHES / HOW WE MATCHED YOU ADDED HERE */}
             {Array.isArray((selectedResult as any).latent_dimensions) && (selectedResult as any).latent_dimensions.length > 0 && (
               <div className="review-quotes" style={{ marginTop: '24px', marginBottom: '24px' }}>
                 <div style={{ fontWeight: '900', fontSize: '1.2rem', color: '#75704E', marginBottom: '12px' }}>

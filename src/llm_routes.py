@@ -1,94 +1,140 @@
 """
-LLM chat route — only loaded when USE_LLM = True in routes.py.
-Adds a POST /api/chat endpoint that performs LLM-driven RAG.
+LLM routes for GOATaways RAG — loaded when USE_LLM = True in app.py.
+
+Two endpoints:
+  POST /api/llm/ir-query   → LLM-optimised keyword query for the IR system
+  POST /api/llm/summarise  → Friendly paragraph summarising top-10 cities
 
 Setup:
-  1. Add API_KEY=your_key to .env
-  2. Set USE_LLM = True in routes.py
+  Local dev:  add  SPARK_API_KEY=<your_dev_key>  to a .env file in project root.
+  Production: the key is injected automatically as SPARK_API_KEY by the server.
 """
-import json
+
 import os
-import re
 import logging
-from flask import request, jsonify, Response, stream_with_context
+from flask import request, jsonify
 from infosci_spark_client import LLMClient
 
 logger = logging.getLogger(__name__)
 
 
-def llm_search_decision(client, user_message):
-    """Ask the LLM whether to search the DB and which word to use."""
+def _get_client() -> LLMClient:
+    """Return an LLMClient using SPARK_API_KEY from the environment."""
+    api_key = os.getenv("SPARK_API_KEY")
+    if not api_key:
+        raise EnvironmentError(
+            "SPARK_API_KEY is not set. Add it to your .env file for local "
+            "development, or check the dashboard for the production key."
+        )
+    return LLMClient(api_key=api_key)
+
+
+# ── API 1: IR-optimised query ────────────────────────────────────────────────
+
+def _build_ir_query(client: LLMClient, user_query: str) -> str:
     messages = [
         {
             "role": "system",
             "content": (
-                "You have access to a database of Keeping Up with the Kardashians episode titles, "
-                "descriptions, and IMDB ratings. Search is by a single word in the episode title. "
-                "Reply with exactly: YES followed by one space and ONE word to search (e.g. YES wedding), "
-                "or NO if the question does not need episode data."
+                "You are a search-query optimisation assistant for a travel "
+                "city recommendation engine. "
+                "Given a user's natural-language travel query, output ONLY a "
+                "short space-separated list of the most informative keywords "
+                "for a TF-IDF + SVD Information Retrieval system.\n"
+                "Rules:\n"
+                "- Output ONLY keywords, no punctuation, no sentences.\n"
+                "- 5–12 words maximum.\n"
+                "- Preserve meaningful adjectives (warm, budget, solo, family, "
+                "beach, hiking, food, etc.).\n"
+                "- Drop stop words, filler, and first-person pronouns.\n"
+                "- Do NOT explain yourself; output the keyword string only."
             ),
         },
-        {"role": "user", "content": user_message},
+        {"role": "user", "content": user_query},
     ]
     response = client.chat(messages)
-    content = (response.get("content") or "").strip().upper()
-    logger.info(f"LLM search decision: {content}")
-    if re.search(r"\bNO\b", content) and not re.search(r"\bYES\b", content):
-        return False, None
-    yes_match = re.search(r"\bYES\s+(\w+)", content)
-    if yes_match:
-        return True, yes_match.group(1).lower()
-    if re.search(r"\bYES\b", content):
-        return True, "Kardashian"
-    return False, None
+    return (response.get("content") or "").strip()
 
 
-def register_chat_route(app, json_search):
-    """Register the /api/chat SSE endpoint. Called from routes.py."""
+# ── API 2: Top-10 cities summariser ─────────────────────────────────────────
 
-    @app.route("/api/chat", methods=["POST"])
-    def chat():
+def _build_summary(client: LLMClient, user_query: str, cities: list) -> str:
+    city_lines = []
+    for i, c in enumerate(cities[:10], 1):
+        name = f"{c.get('city', '?')}, {c.get('country', '?')}"
+        desc = c.get("short_description", "")[:120]
+        budget = c.get("budget", "")
+        region = c.get("region", "")
+        city_lines.append(f"{i}. {name} ({region}, {budget} budget) — {desc}")
+    context = "\n".join(city_lines)
+
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are a friendly travel expert writing for a city "
+                "recommendation app called GOATaways. "
+                "You will be given a user's travel query and a ranked list of "
+                "up to 10 matching cities returned by an IR system. "
+                "Write a single paragraph (3–5 sentences, ~80–120 words) that "
+                "explains WHY these cities are a great match for the user's "
+                "request. Be warm, specific, and reference concrete details "
+                "from the city descriptions. Do not just list the cities — "
+                "weave them into a coherent narrative. No headings or bullets."
+            ),
+        },
+        {
+            "role": "user",
+            "content": (
+                f"User query: {user_query}\n\n"
+                f"Top recommended cities:\n{context}"
+            ),
+        },
+    ]
+    response = client.chat(messages)
+    return (response.get("content") or "").strip()
+
+
+# ── Route registration ───────────────────────────────────────────────────────
+
+def register_llm_routes(app):
+    """Register both LLM endpoints. Call this from app.py when USE_LLM=True."""
+
+    @app.route("/api/llm/ir-query", methods=["POST"])
+    def llm_ir_query():
         data = request.get_json() or {}
-        user_message = (data.get("message") or "").strip()
-        if not user_message:
-            return jsonify({"error": "Message is required"}), 400
+        user_query = (data.get("query") or "").strip()
+        if not user_query:
+            return jsonify({"error": "query is required"}), 400
+        try:
+            client = _get_client()
+        except EnvironmentError as e:
+            return jsonify({"error": str(e)}), 500
+        try:
+            ir_query = _build_ir_query(client, user_query)
+            logger.info(f"[llm/ir-query] '{user_query}' → '{ir_query}'")
+            return jsonify({"ir_query": ir_query})
+        except Exception as e:
+            logger.error(f"[llm/ir-query] LLM error: {e}")
+            return jsonify({"error": "LLM request failed", "detail": str(e)}), 500
 
-        api_key = os.getenv("API_KEY")
-        if not api_key:
-            return jsonify({"error": "API_KEY not set — add it to your .env file"}), 500
-
-        client = LLMClient(api_key=api_key)
-        use_search, search_term = llm_search_decision(client, user_message)
-
-        if use_search:
-            episodes = json_search(search_term or "Kardashian")
-            context_text = "\n\n---\n\n".join(
-                f"Title: {ep['title']}\nDescription: {ep['descr']}\nIMDB Rating: {ep['imdb_rating']}"
-                for ep in episodes
-            ) or "No matching episodes found."
-            messages = [
-                {"role": "system", "content": "Answer questions about Keeping Up with the Kardashians using only the episode information provided."},
-                {"role": "user", "content": f"Episode information:\n\n{context_text}\n\nUser question: {user_message}"},
-            ]
-        else:
-            messages = [
-                {"role": "system", "content": "You are a helpful assistant for Keeping Up with the Kardashians questions."},
-                {"role": "user", "content": user_message},
-            ]
-
-        def generate():
-            if use_search and search_term:
-                yield f"data: {json.dumps({'search_term': search_term})}\n\n"
-            try:
-                for chunk in client.chat(messages, stream=True):
-                    if chunk.get("content"):
-                        yield f"data: {json.dumps({'content': chunk['content']})}\n\n"
-            except Exception as e:
-                logger.error(f"Streaming error: {e}")
-                yield f"data: {json.dumps({'error': 'Streaming error occurred'})}\n\n"
-
-        return Response(
-            stream_with_context(generate()),
-            mimetype="text/event-stream",
-            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
-        )
+    @app.route("/api/llm/summarise", methods=["POST"])
+    def llm_summarise():
+        data = request.get_json() or {}
+        user_query = (data.get("query") or "").strip()
+        cities = data.get("cities") or []
+        if not user_query:
+            return jsonify({"error": "query is required"}), 400
+        if not cities:
+            return jsonify({"error": "cities list is required"}), 400
+        try:
+            client = _get_client()
+        except EnvironmentError as e:
+            return jsonify({"error": str(e)}), 500
+        try:
+            summary = _build_summary(client, user_query, cities)
+            logger.info(f"[llm/summarise] generated summary for '{user_query}'")
+            return jsonify({"summary": summary})
+        except Exception as e:
+            logger.error(f"[llm/summarise] LLM error: {e}")
+            return jsonify({"error": "LLM request failed", "detail": str(e)}), 500

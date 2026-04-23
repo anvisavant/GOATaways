@@ -490,3 +490,88 @@ body, .app {
   background: #75704E;
   color: #FFF;
 }
+
+/* ── RAG Panel ──────────────────────────────────────────── */
+.rag-panel {
+  margin: 1rem 0 1.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid #d4d1ca;
+  border-radius: 0.75rem;
+  background: #f9f8f5;
+}
+
+.rag-panel__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.rag-panel__badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #01696f;
+  background: #cedcd8;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+}
+
+.rag-panel__subtitle {
+  font-size: 0.75rem;
+  color: #7a7974;
+}
+
+.rag-panel__loading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #7a7974;
+  font-size: 0.875rem;
+}
+
+.rag-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #d4d1ca;
+  border-top-color: #01696f;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.rag-panel__error {
+  color: #a12c7b;
+  font-size: 0.875rem;
+}
+
+.rag-panel__ir-query {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.rag-panel__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #7a7974;
+  white-space: nowrap;
+}
+
+.rag-panel__code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  background: #edeae5;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.375rem;
+  color: #28251d;
+}
+
+.rag-panel__summary {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: #28251d;
+  margin: 0;
+}

@@ -6,8 +6,15 @@ from data_loader import load_cities
 import numpy as np
 import os
 
+USE_LLM = True
+
 app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
 CORS(app)
+if USE_LLM:
+    from llm_routes import register_llm_routes
+    register_llm_routes(app)
+
+
 
 _df = load_cities()
 
@@ -64,6 +71,7 @@ def serve(path):
     if path and os.path.exists(os.path.join(static, path)):
         return send_from_directory(static, path)
     return send_from_directory(static, 'index.html')
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
