@@ -502,15 +502,78 @@ const globeRings = useMemo(
               </div>
             )}
 
-            {/* SVD MATCHES ADDED HERE TO THE READ MORE DRAWER */}
+                        {/* SVD MATCHES / HOW WE MATCHED YOU ADDED HERE */}
             {Array.isArray((selectedResult as any).latent_dimensions) && (selectedResult as any).latent_dimensions.length > 0 && (
-              <div className="review-quotes" style={{ marginTop: '15px', marginBottom: '15px' }}>
-                <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>🧠 SVD Concept Match</div>
-                {(selectedResult as any).latent_dimensions.map((dim: any, idx: number) => (
-                  <blockquote className="review-quote" key={`svd-${idx}`}>
-                    <strong>Dim {dim.dimension} ({dim.direction === 'positive' ? '🟢' : '🔴'}):</strong> {Array.isArray(dim.positive_terms) ? dim.positive_terms.slice(0, 5).join(', ') : ''}
-                  </blockquote>
-                ))}
+              <div className="review-quotes" style={{ marginTop: '24px', marginBottom: '24px' }}>
+                <div style={{ fontWeight: '900', fontSize: '1.2rem', color: '#75704E', marginBottom: '12px' }}>
+                  ✨ How we matched you
+                </div>
+                
+                <div style={{ background: '#fff', borderRadius: '12px', padding: '16px', border: '1px solid #8BA6A9' }}>
+                  <p style={{ margin: '0 0 16px 0', fontSize: '0.95rem', color: '#333', lineHeight: 1.5 }}>
+                    Here is the math showing how strongly your request aligned with this city's top concepts:
+                  </p>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {(selectedResult as any).latent_dimensions.map((dim: any, idx: number) => {
+                      const qw = Number(dim.query_weight || 0);
+                      const cw = Number(dim.city_weight || 0);
+                      const contrib = Number(dim.contribution || 0);
+                      const terms = Array.isArray(dim.positive_terms) ? dim.positive_terms.slice(0, 5).join(', ') : '';
+
+                      return (
+                        <div key={`svd-${idx}`} style={{ 
+                          background: '#f8f9fa',
+                          border: '1px solid #e9ecef',
+                          borderRadius: '8px',
+                          overflow: 'hidden'
+                        }}>
+                          {/* Math Header */}
+                          <div style={{ 
+                            background: '#e9ecef', 
+                            padding: '8px 12px', 
+                            fontSize: '0.85rem', 
+                            fontFamily: 'monospace',
+                            color: '#495057',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            borderBottom: '1px solid #dee2e6'
+                          }}>
+                            <span>
+                              <strong>Query</strong> ({qw > 0 ? '+' : ''}{qw.toFixed(3)})
+                              <span style={{ margin: '0 6px', color: '#adb5bd' }}>×</span>
+                              <strong>City</strong> ({cw > 0 ? '+' : ''}{cw.toFixed(3)})
+                            </span>
+                            <span style={{ fontWeight: 'bold', color: contrib > 0 ? '#2b8a3e' : '#c92a2a' }}>
+                              = Match: {contrib > 0 ? '+' : ''}{contrib.toFixed(3)}
+                            </span>
+                          </div>
+                          
+                          {/* Terms Body */}
+                          <div style={{ padding: '10px 12px', fontSize: '0.9rem', color: '#333' }}>
+                            <span style={{ color: '#8BA6A9', fontWeight: 'bold', marginRight: '6px' }}>Latent Concept {dim.dimension} (Top Words):</span>
+                            {terms}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  <div style={{ 
+                    margin: '16px 0 0 0', 
+                    paddingTop: '12px',
+                    borderTop: '1px dashed #ccc',
+                    fontSize: '0.9rem', 
+                    color: '#444', 
+                    lineHeight: 1.6
+                  }}>
+                    <strong>Final Text Score Calculation:</strong><br/>
+                    Base Keyword Match ({((selectedResult.scores?.text_score || 0) * 100).toFixed(0)}%) × 0.25 weight<br/>
+                    + Semantic SVD Match ({((selectedResult.scores?.svd_score || 0) * 100).toFixed(0)}%) × 0.75 weight<br/>
+                    <strong>= {((selectedResult.scores?.review_score || 0) * 100).toFixed(0)}% Overall Review Match</strong>
+                  </div>
+                </div>
               </div>
             )}
 

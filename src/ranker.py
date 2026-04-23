@@ -136,6 +136,7 @@ def rank_destinations(query, user_lat=None, user_lon=None, user_baseline_temp=No
             "score": round(final_score, 4),
             "trip_length_inferred": parsed["trip_length"],
             "short_description": row["short_description"][:200] + "...",
+            "full_description": str(row.get("short_description", "")),
             "matching_reviews": [get_best_review_snippet(parsed["raw"], city_id)],
             "scores": {
                 "review_score": round(gated_review_score, 4),
