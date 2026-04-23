@@ -8,6 +8,13 @@ export interface ScoreBreakdown {
   budget_score: number
   distance_score: number
   weights_used?: Record<string, number>
+  svd_score?: number
+}
+
+export interface LatentDimension {
+  dimension: number
+  direction: string
+  positive_terms: string[]
 }
 
 export interface Destination {
@@ -18,8 +25,10 @@ export interface Destination {
   score: number
   text_similarity: number
   short_description: string
+  full_description?: string       // Added
   scores: ScoreBreakdown
   matching_reviews?: string[]
+  latent_dimensions?: LatentDimension[]  // Added
   trip_length_inferred?: string
   latitude?: number
   longitude?: number

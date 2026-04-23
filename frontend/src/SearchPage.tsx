@@ -474,7 +474,10 @@ const globeRings = useMemo(
               )}
             </div>
 
-            <p className="drawer-desc">{selectedResult.short_description}</p>
+            {/* FULL DESCRIPTION ADDED HERE TO THE READ MORE DRAWER */}
+            <p className="drawer-desc">
+              {(selectedResult as any).full_description || selectedResult.short_description}
+            </p>
 
             {selectedResult.scores && (
               <div className="score-bars drawer-score-bars">
@@ -496,6 +499,18 @@ const globeRings = useMemo(
                       </span>
                     </div>
                   ))}
+              </div>
+            )}
+
+            {/* SVD MATCHES ADDED HERE TO THE READ MORE DRAWER */}
+            {Array.isArray((selectedResult as any).latent_dimensions) && (selectedResult as any).latent_dimensions.length > 0 && (
+              <div className="review-quotes" style={{ marginTop: '15px', marginBottom: '15px' }}>
+                <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>🧠 SVD Concept Match</div>
+                {(selectedResult as any).latent_dimensions.map((dim: any, idx: number) => (
+                  <blockquote className="review-quote" key={`svd-${idx}`}>
+                    <strong>Dim {dim.dimension} ({dim.direction === 'positive' ? '🟢' : '🔴'}):</strong> {Array.isArray(dim.positive_terms) ? dim.positive_terms.slice(0, 5).join(', ') : ''}
+                  </blockquote>
+                ))}
               </div>
             )}
 
