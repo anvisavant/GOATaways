@@ -41,40 +41,39 @@ function LandingPage({ onStart }: Props): JSX.Element {
         flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '40px'
+        gap: '60px'
       }}>
         
         {/* Left Side: Copy & Button */}
         <div style={{
-          flex: '1 1 500px',
-          background: 'rgba(244, 235, 190, 0.85)',
+          flex: '1 1 450px',
+          background: '#F4EBBE',
           border: '2px solid #8BA6A9',
           borderRadius: '28px',
           padding: '40px',
           boxShadow: '0 14px 40px rgba(117, 112, 78, 0.22)',
-          backdropFilter: 'blur(6px)',
-          textAlign: 'center'
+          textAlign: 'center',
+          maxWidth: '500px'
         }}>
           
           <div style={{
             display: 'inline-block',
-            marginBottom: '18px',
-            padding: '8px 16px',
+            marginBottom: '24px',
+            padding: '6px 16px',
             borderRadius: '999px',
-            background: '#CACC90',
             border: '1px solid #75704E',
             color: '#000',
-            fontSize: '0.85rem',
-            fontWeight: 700,
-            letterSpacing: '0.04em',
+            fontSize: '0.75rem',
+            fontWeight: 800,
+            letterSpacing: '0.05em',
             textTransform: 'uppercase'
           }}>
-            find your next GOAT getaway
+            FIND YOUR NEXT GOAT GETAWAY
           </div>
 
           <h1 style={{
-            fontSize: 'clamp(3rem, 8vw, 5rem)',
-            lineHeight: 0.95,
+            fontSize: 'clamp(3.5rem, 8vw, 4.5rem)',
+            lineHeight: 1.1,
             fontWeight: 900,
             color: '#75704E',
             marginBottom: '20px',
@@ -87,13 +86,11 @@ function LandingPage({ onStart }: Props): JSX.Element {
           </h1>
 
           <p style={{
-            fontSize: '1.1rem',
+            fontSize: '1rem',
             lineHeight: 1.6,
             color: '#333',
             marginBottom: '32px',
-            maxWidth: '480px',
-            marginLeft: 'auto',
-            marginRight: 'auto'
+            fontWeight: 500
           }}>
             Search destinations by vibe, climate, budget, and trip length. 
             Explore the world, then jump straight into personalized travel matches.
@@ -107,7 +104,7 @@ function LandingPage({ onStart }: Props): JSX.Element {
               border: 'none',
               background: '#75704E',
               color: '#FFF',
-              fontSize: '1.1rem',
+              fontSize: '1.05rem',
               fontWeight: 800,
               cursor: 'pointer',
               transition: 'all 0.2s',
@@ -126,7 +123,7 @@ function LandingPage({ onStart }: Props): JSX.Element {
           </button>
         </div>
 
-        {/* Right Side: Globe */}
+        {/* Right Side: Globe with Curved Text */}
         <div style={{
           flex: '1 1 500px',
           position: 'relative',
@@ -145,6 +142,45 @@ function LandingPage({ onStart }: Props): JSX.Element {
             filter: 'blur(20px)',
             pointerEvents: 'none'
           }} />
+
+          {/* Animated Curved Text SVG */}
+          {/* Animated Curved Text SVG */}
+          <div style={{
+            position: 'absolute',
+            width: '560px', 
+            height: '560px',
+            pointerEvents: 'none',
+            zIndex: 10,
+            animation: 'spin 40s linear infinite' // Increased from 20s to 40s to make it spin half as fast
+          }}>
+            <svg viewBox="0 0 500 500" width="100%" height="100%">
+              <defs>
+                <path 
+                  id="circlePath" 
+                  d="M 250, 250 m -190, 0 a 190,190 0 1,1 380,0 a 190,190 0 1,1 -380,0" 
+                />
+              </defs>
+              <text 
+                fill="#75704E" 
+                fontSize="33" // Increased from 20 to 38
+                fontWeight="900"
+                style={{ letterSpacing: '4.7px' }} // Tweaked slightly to perfectly bridge the gap between the two repeats
+              >
+                <textPath href="#circlePath" startOffset="0%">
+                  GREATEST OF ALL TRAVELS • GREATEST OF ALL TRAVELS • 
+                </textPath>
+              </text>
+            </svg>
+            
+            <style>
+              {`
+                @keyframes spin {
+                  from { transform: rotate(0deg); }
+                  to { transform: rotate(360deg); }
+                }
+              `}
+            </style>
+          </div>
           
           <Globe
             ref={globeRef}
