@@ -1,0 +1,176 @@
+/* ── About Page ─────────────────────────────────────────────────────────── */
+.about-page {
+  min-height: 100vh;
+  padding: 80px 24px 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.about-hero {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.about-tagline {
+  font-size: 1.05rem;
+  color: #75704E;
+  font-style: italic;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+.about-section {
+  width: 100%;
+  max-width: 720px;
+  background: #F4EBBE;
+  border: 2px solid #8BA6A9;
+  border-radius: 20px;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(117, 112, 78, 0.15);
+}
+
+.about-section-title {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #75704E;
+  margin-bottom: 14px;
+}
+
+.about-section-body {
+  font-size: 0.975rem;
+  color: #000;
+  line-height: 1.75;
+}
+
+/* ── Steps ──────────────────────────────────────────────────────────────── */
+.about-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.about-step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: #FFFFFF;
+  border: 1px solid #8BA6A9;
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+
+.about-step-num {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  background: #75704E;
+  color: #F4EBBE;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1rem;
+  margin-top: 2px;
+}
+
+.about-step-content h3 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #000;
+  margin-bottom: 8px;
+}
+
+.about-step-content p {
+  font-size: 0.925rem;
+  color: #333;
+  line-height: 1.7;
+}
+
+.about-list {
+  margin: 10px 0 0 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.about-list li {
+  font-size: 0.925rem;
+  color: #333;
+  line-height: 1.65;
+}
+
+/* ── Formula box ─────────────────────────────────────────────────────────── */
+.about-formula {
+  background: #F4EBBE;
+  border: 1px dashed #75704E;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-top: 12px;
+}
+
+.about-formula code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.88rem;
+  color: #75704E;
+  line-height: 1.9;
+}
+
+/* ── Sample prompts ──────────────────────────────────────────────────────── */
+.sample-prompts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.sample-prompt-btn {
+  background: #FFFFFF;
+  border: 2px solid #8BA6A9;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 0.875rem;
+  color: #333;
+  font-style: italic;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.55;
+  transition: all 0.18s ease;
+  font-family: inherit;
+}
+
+.sample-prompt-btn:hover {
+  border-color: #75704E;
+  background: #CACC90;
+  color: #000;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(117, 112, 78, 0.2);
+}
+
+.sample-prompt-btn--copied {
+  border-color: #75704E;
+  background: #75704E;
+  color: #F4EBBE;
+  font-style: normal;
+  font-weight: 700;
+  transform: none;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.about-footer {
+  margin-top: 16px;
+  font-size: 0.78rem;
+  color: #75704E;
+  opacity: 0.7;
+  text-align: center;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .about-section { padding: 20px 18px; }
+  .about-step { flex-direction: column; }
+  .sample-prompts-grid { grid-template-columns: 1fr; }
+}

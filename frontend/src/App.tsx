@@ -2,17 +2,38 @@ import { useState } from 'react'
 import './App.css'
 import SearchPage from './SearchPage'
 import LandingPage from './LandingPage'
+import AboutPage from './AboutPage'
+
+type View = 'landing' | 'search' | 'about'
 
 function App() {
-  // false = show Landing Page, true = show Search Page
-  const [isSearching, setIsSearching] = useState(false)
+  const [view, setView] = useState<View>('landing')
+  const [initialPrompt, setInitialPrompt] = useState('')
+
+  const handleTryPrompt = (prompt: string) => {
+    setInitialPrompt(prompt)
+    setView('search')
+  }
 
   return (
     <div className="app-container">
-      {isSearching ? (
-        <SearchPage onBack={() => setIsSearching(false)} />
-      ) : (
-        <LandingPage onStart={() => setIsSearching(true)} />
+      {view === 'search' && (
+        <SearchPage
+          onBack={() => setView('landing')}
+          initialPrompt={initialPrompt}
+        />
+      )}
+      {view === 'about' && (
+        <AboutPage
+          onBack={() => setView('landing')}
+          onTryPrompt={handleTryPrompt}
+        />
+      )}
+      {view === 'landing' && (
+        <LandingPage
+          onStart={() => { setInitialPrompt(''); setView('search') }}
+          onAbout={() => setView('about')}
+        />
       )}
     </div>
   )

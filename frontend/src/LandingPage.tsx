@@ -3,9 +3,10 @@ import Globe from 'react-globe.gl'
 
 interface Props {
   onStart: () => void
+  onAbout: () => void
 }
 
-function LandingPage({ onStart }: Props): JSX.Element {
+function LandingPage({ onStart, onAbout }: Props): JSX.Element {
   const globeRef = useRef<any>(null)
 
   useEffect(() => {
@@ -43,8 +44,8 @@ function LandingPage({ onStart }: Props): JSX.Element {
         justifyContent: 'center',
         gap: '60px'
       }}>
-        
-        {/* Left Side: Copy & Button */}
+
+        {/* Left Side: Copy & Buttons */}
         <div style={{
           flex: '1 1 450px',
           background: '#F4EBBE',
@@ -55,7 +56,7 @@ function LandingPage({ onStart }: Props): JSX.Element {
           textAlign: 'center',
           maxWidth: '500px'
         }}>
-          
+
           <div style={{
             display: 'inline-block',
             marginBottom: '24px',
@@ -79,8 +80,8 @@ function LandingPage({ onStart }: Props): JSX.Element {
             marginBottom: '20px',
             marginTop: 0
           }}>
-            GOAT<span style={{ 
-              color: '#F4EBBE', 
+            GOAT<span style={{
+              color: '#F4EBBE',
               textShadow: '-1px -1px 0 #75704E, 1px -1px 0 #75704E, -1px 1px 0 #75704E, 1px 1px 0 #75704E'
             }}>aways</span>
           </h1>
@@ -92,13 +93,16 @@ function LandingPage({ onStart }: Props): JSX.Element {
             marginBottom: '32px',
             fontWeight: 500
           }}>
-            Search destinations by vibe, climate, budget, and trip length. 
+            Search destinations by vibe, climate, budget, and trip length.
             Explore the world, then jump straight into personalized travel matches.
           </p>
 
-          <button 
+          {/* Primary CTA */}
+          <button
             onClick={onStart}
             style={{
+              display: 'block',
+              width: '100%',
               padding: '16px 32px',
               borderRadius: '999px',
               border: 'none',
@@ -108,18 +112,50 @@ function LandingPage({ onStart }: Props): JSX.Element {
               fontWeight: 800,
               cursor: 'pointer',
               transition: 'all 0.2s',
-              boxShadow: '0 10px 24px rgba(117, 112, 78, 0.3)'
+              boxShadow: '0 10px 24px rgba(117, 112, 78, 0.3)',
+              marginBottom: '14px'
             }}
             onMouseOver={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.background = '#8BA6A9';
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.background = '#8BA6A9'
             }}
             onMouseOut={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.background = '#75704E';
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.background = '#75704E'
             }}
           >
             Start Searching ✈️
+          </button>
+
+          {/* Secondary: How it works */}
+          <button
+            onClick={onAbout}
+            style={{
+              display: 'block',
+              width: '100%',
+              padding: '13px 32px',
+              borderRadius: '999px',
+              border: '2px solid #8BA6A9',
+              background: 'transparent',
+              color: '#75704E',
+              fontSize: '0.95rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              fontFamily: 'inherit'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = '#8BA6A9'
+              e.currentTarget.style.color = '#000'
+              e.currentTarget.style.borderColor = '#8BA6A9'
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'transparent'
+              e.currentTarget.style.color = '#75704E'
+              e.currentTarget.style.borderColor = '#8BA6A9'
+            }}
+          >
+            How it works ↗
           </button>
         </div>
 
@@ -144,44 +180,43 @@ function LandingPage({ onStart }: Props): JSX.Element {
           }} />
 
           {/* Animated Curved Text SVG */}
-          {/* Animated Curved Text SVG */}
           <div style={{
             position: 'absolute',
-            width: '560px', 
+            width: '560px',
             height: '560px',
             pointerEvents: 'none',
             zIndex: 10,
-            animation: 'spin 40s linear infinite' // Increased from 20s to 40s to make it spin half as fast
+            animation: 'spin 40s linear infinite'
           }}>
             <svg viewBox="0 0 500 500" width="100%" height="100%">
               <defs>
-                <path 
-                  id="circlePath" 
-                  d="M 250, 250 m -190, 0 a 190,190 0 1,1 380,0 a 190,190 0 1,1 -380,0" 
+                <path
+                  id="circlePath"
+                  d="M 250, 250 m -190, 0 a 190,190 0 1,1 380,0 a 190,190 0 1,1 -380,0"
                 />
               </defs>
-              <text 
-                fill="#75704E" 
-                fontSize="33" // Increased from 20 to 38
+              <text
+                fill="#75704E"
+                fontSize="33"
                 fontWeight="900"
-                style={{ letterSpacing: '4.7px' }} // Tweaked slightly to perfectly bridge the gap between the two repeats
+                style={{ letterSpacing: '4.7px' }}
               >
                 <textPath href="#circlePath" startOffset="0%">
-                  GREATEST OF ALL TRAVELS • GREATEST OF ALL TRAVELS • 
+                  GREATEST OF ALL TRAVELS • GREATEST OF ALL TRAVELS •{' '}
                 </textPath>
               </text>
             </svg>
-            
+
             <style>
               {`
                 @keyframes spin {
                   from { transform: rotate(0deg); }
-                  to { transform: rotate(360deg); }
+                  to   { transform: rotate(360deg); }
                 }
               `}
             </style>
           </div>
-          
+
           <Globe
             ref={globeRef}
             width={500}

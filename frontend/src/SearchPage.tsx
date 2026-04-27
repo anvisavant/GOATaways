@@ -5,6 +5,7 @@ import { Destination, SearchResponse } from './types'
 
 interface Props {
   onBack: () => void
+  initialPrompt?: string
 }
 
 const SCORE_LABELS: Record<string, string> = {
@@ -71,12 +72,21 @@ function RagPanel({ loading, error, irQuery, summary }: RagPanelProps) {
     </div>
   )
 }
-// ──────────────────────────────────────────────────────────────────────
+const SAMPLE_PROMPTS = [
+  "I want a warm beach destination for a week-long trip on a budget",
+  "Solo backpacker looking for vibrant nightlife and street food in Southeast Asia",
+  "Family-friendly city with great museums and mild weather for spring break",
+  "Romantic getaway with mountains and cozy cafes, medium budget, one week",
+  "Adventure trip with hiking and nature, somewhere cold and remote",
+  "I want to party in a tropical location for spring break, cheap flights preferred",
+  "Cultural immersion trip — history, architecture, local cuisine, Europe",
+  "Digital nomad looking for a city with great coffee shops and fast internet",
+]
 
-function SearchPage({ onBack }: Props): JSX.Element {
+function SearchPage({ onBack, initialPrompt = '' }: Props) {
+  const [query, setQuery] = useState(initialPrompt)
   const globeRef = useRef<any>(null)
 
-  const [query, setQuery] = useState('')
   const [lat, setLat] = useState('')
   const [lon, setLon] = useState('')
   const [results, setResults] = useState<Destination[]>([])
@@ -316,6 +326,7 @@ const globeRings = useMemo(
           onChange={(e) => setQuery(e.target.value)}
           rows={3}
         />
+        
         <div className="coords-row">
           <input
             className="coord-input"
@@ -341,7 +352,21 @@ const globeRings = useMemo(
         <button className="search-btn" type="submit" disabled={loading || !csvReady}>
           {loading ? 'Searching...' : !csvReady ? 'Loading map data...' : 'Find Destinations ✈️'}
         </button>
-
+        <div className="search-sample-prompts">
+  <span className="search-sample-label">💡 Try a prompt:</span>
+  <div className="search-sample-grid">
+    {SAMPLE_PROMPTS.map((prompt, idx) => (
+      <button
+        key={idx}
+        type="button"
+        className="search-sample-btn"
+        onClick={() => setQuery(prompt)}
+      >
+        {prompt}
+      </button>
+    ))}
+  </div>
+</div>
         {nearestCity && (
           <div className="baseline-note">
             📍 Your nearest city: <strong>{nearestCity}</strong>
@@ -362,30 +387,7 @@ const globeRings = useMemo(
       {results.length > 0 && (
         <div className="results-shell">
           <div className="results-toolbar">
-            <button
-              type="button"
-              className={viewMode === 'globe' ? 'view-btn active' : 'view-btn'}
-              onClick={() => setViewMode('globe')}
-            >
-              🌍 Globe
-            </button>
-            <button
-              type="button"
-              className={viewMode === 'list' ? 'view-btn active' : 'view-btn'}
-              onClick={() => setViewMode('list')}
-            >
-              📋 List
-            </button>
-            <button
-              type="button"
-              className="view-btn jump-btn"
-              onClick={() => {
-                const el = document.getElementById('results-list')
-                el?.scrollIntoView({ behavior: 'smooth' })
-              }}
-            >
-              ↓ Scroll to results
-            </button>
+            
           </div>
 
           {viewMode === 'globe' && (
